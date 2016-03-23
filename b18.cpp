@@ -22,7 +22,8 @@ struct nand
 	}
 };
 
-void readFile(vector<int> inputs, vector<int> outputs, set<int> usedInputs, set<int> usedOutputs);
+void nandSetup(vector<nand>& nandVector, vector<int>& inputs, vector<int>& outputs, vector<int>& inputPins,
+			vector<int*>& outputPins, int j);
 void printArray(vector<nand> nandVector);
 
 int main( int argc, char * argv[])
@@ -51,7 +52,6 @@ int main( int argc, char * argv[])
 
 	int temp;
 	int counter = 0;
-
 	//Read in file
 	while(wiringFile >> temp)
 	{		
@@ -83,33 +83,9 @@ int main( int argc, char * argv[])
 	{
 		nand tempNand;
 		nandVector.push_back(tempNand);
-	}
+	}	
 
-	//Set up nandVector to have pointers to the correct things
-	for(int i = 0; i < inputs.size(); i++)
-	{
-
-		if(inputs[i] < j)
-		{
-			if(outputs[i] % 2)
-				nandVector[floor(outputs[i] / 2)].input1 = &inputPins[inputs[i]];
-			else
-				nandVector[floor(outputs[i] / 2)].input2 = &inputPins[inputs[i]];
-		}
-		else
-		{
-			if(outputs[i] >= nandVector.size() * 2)
-			{
-				outputPins.push_back(&nandVector[inputs[i] - 8].output);				
-			}
-			if(outputs[i] % 2)
-				nandVector[floor(outputs[i] / 2)].input1 = &nandVector[inputs[i] - 8].output;
-			else
-				nandVector[floor(outputs[i] / 2)].input2 = &nandVector[inputs[i] - 8].output;
-		}
-	}
-
-	
+	nandSetup(nandVector, inputs, outputs, inputPins, outputPins, j);
 
 	//Binary Counter Thing
 	for(int i = 0; i < pow(2, usedInputs.size()); i++)
@@ -170,9 +146,35 @@ int main( int argc, char * argv[])
 	}	
 }
 
-void readFile(vector<int> inputs, vector<int> outputs, set<int> usedInputs, set<int> usedOutputs)
+void nandSetup(vector<nand>& nandVector, vector<int>& inputs, vector<int>& outputs, vector<int>& inputPins,
+			vector<int*>& outputPins, int j)
 {
-
+	//Set up nandVector to have pointers to the correct things
+	for(int i = 0; i < inputs.size(); i++)
+	{
+		if(inputs[i] < j)
+		{
+			if(outputs[i] % 2)
+				nandVector[floor(outputs[i] / 2)].input1 = &inputPins[inputs[i]];
+			else
+				nandVector[floor(outputs[i] / 2)].input2 = &inputPins[inputs[i]];
+		}
+		else
+		{
+			if(outputs[i] >= nandVector.size() * 2)
+			{				
+				outputPins.push_back(&nandVector[inputs[i] - 8].output);				
+			}
+			if(outputs[i] % 2)
+			{
+				nandVector[floor(outputs[i] / 2)].input1 = &nandVector[inputs[i] - 8].output;
+			}
+			else
+			{
+				nandVector[floor(outputs[i] / 2)].input2 = &nandVector[inputs[i] - 8].output;
+			}
+		}		
+	}
 }
 
 void printArray(vector<nand> nandVector)
