@@ -22,6 +22,7 @@ struct nand
 	}
 };
 
+void readFile(vector<int> inputs, vector<int> outputs, set<int> usedInputs, set<int> usedOutputs);
 void printArray(vector<nand> nandVector);
 
 int main( int argc, char * argv[])
@@ -72,16 +73,10 @@ int main( int argc, char * argv[])
 		}
 	}
 
+	//These two lines are to make sure our vectors have enough space
+	//so we can index into them
 	inputPins.reserve(usedInputs.size());
 	outputPins.reserve(usedOutputs.size());
-
-	for(set<int>::iterator iter = usedInputs.begin(); iter != usedInputs.end(); iter++)
-	{
-		cout << *iter << " " << endl;
-	}
-
-	cout << "Used Inputs: " << usedInputs.size() << endl;
-	cout << "Used Outputs: " << usedOutputs.size() << endl;
 
 	//Create nand vector
 	for(int i = 0; i < m * n; i++)
@@ -105,7 +100,6 @@ int main( int argc, char * argv[])
 		{
 			if(outputs[i] >= nandVector.size() * 2)
 			{
-				//outputPins[outputs[i] - (2 * m * n)] = &nandVector[inputs[i] - 8].output;
 				outputPins.push_back(&nandVector[inputs[i] - 8].output);				
 			}
 			if(outputs[i] % 2)
@@ -120,53 +114,65 @@ int main( int argc, char * argv[])
 	//Binary Counter Thing
 	for(int i = 0; i < pow(2, usedInputs.size()); i++)
 	{
+		cout << "  ";
+		for(int iter1 = 0; iter1 < usedInputs.size(); iter1++)
+		{
+			cout << iter1 << " ";
+		}	
+		cout << "  ";
+		for(int iter1 = 0; iter1 < usedOutputs.size(); iter1++)
+		{
+			cout << iter1 << " ";
+		}
+		cout << endl;
+
+		int dashes = usedInputs.size() + usedOutputs.size() + 1;
+		dashes *= 2;
+		cout << "  ";
+		for(int iter1 = 0; iter1 < dashes; iter1++)
+		{
+			cout << "-";
+		}
+		cout << endl;
+
+
+		cout << "| ";
+		//Input Pins
 		for(int iter1 = usedInputs.size() - 1; iter1 >= 0; iter1--)
 		{
 			inputPins[iter1] = myBitset[iter1];
 			cout << inputPins[iter1] << " ";
 		}
-		
-		/*for(int iter1 = 0; iter1 < usedInputs.size(); iter1++)
-		{
-			inputPins[iter1] = myBitset[iter1];
-			cout << inputPins[iter1] << " ";
-		}*/
 
-		cout << endl;
+		cout << "| ";		
 
 		for(int iter1 = 0; iter1 < nandVector.size(); iter1++)
 		{
 			nandVector[iter1].output = !(*nandVector[iter1].input1 & *nandVector[iter1].input2);
-			//cout << "All Inputs1: " << *nandVector[i].input1 << endl;
-			//cout << "All Inputs2: " << *nandVector[i].input2 << endl;
-			//cout << "All Outputs" << iter1 << ": " << nandVector[i].output << endl;
 		}		
 
-		cout << "OutputsPins: ";
+		//Output Pins
 		for(int iter1 = 0; iter1 < outputPins.size(); iter1++)
 		{
 			cout << *outputPins[iter1] << " ";
 		}
-		cout << endl;
-		/*
-		cout << "Input1[0]: " << *nandVector[0].input1 << endl;
-		cout << "Input2[0]: " << *nandVector[0].input2 << endl;
-		cout << "Outputs[0]: " << nandVector[0].output << endl;
-
-		cout << "Input1[1]: " << *nandVector[1].input1 << endl;
-		cout << "Input2[1]: " << *nandVector[1].input2 << endl;
-		cout << "Outputs[1]: " << nandVector[1].output << endl;
-
-		cout << "Input1[13]: " << *nandVector[13].input1 << endl;
-		cout << "Input2[13]: " << *nandVector[13].input2 << endl;
-		cout << "Outputs[13]: " << nandVector[13].output << endl;
-		*/
+		cout << "|" << endl; 
+		cout << "  ";	
+		for(int iter1 = 0; iter1 < dashes; iter1++)
+		{
+			cout << "-";
+		}
+		cout << endl << endl;
 
 		//printArray(nandVector);
-		cout << "DONE" << endl;
 
 		myBitset = bitset<j>(myBitset.to_ulong() + 1);
 	}	
+}
+
+void readFile(vector<int> inputs, vector<int> outputs, set<int> usedInputs, set<int> usedOutputs)
+{
+
 }
 
 void printArray(vector<nand> nandVector)
