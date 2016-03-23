@@ -22,6 +22,7 @@ struct nand
 	}
 };
 
+void processAndPrint();
 void nandSetup(vector<nand>& nandVector, vector<int>& inputs, vector<int>& outputs, vector<int>& inputPins,
 			vector<int*>& outputPins, int j);
 void printArray(vector<nand> nandVector);
@@ -30,7 +31,7 @@ int main( int argc, char * argv[])
 {
 	ifstream wiringFile;
 	const int j = 8; //Input Lines
-	const int k = 4; //Output Lines
+	//const int k = 4; //Output Lines
 	const int m = 10; //Rows
 	const int n = 10; //Columns
 	vector<int> inputs;
@@ -79,32 +80,32 @@ int main( int argc, char * argv[])
 	outputPins.reserve(usedOutputs.size());
 
 	//Create nand vector
-	for(int i = 0; i < m * n; i++)
+	for(unsigned int i = 0; i < m * n; i++)
 	{
 		nand tempNand;
 		nandVector.push_back(tempNand);
 	}	
 
+	//Connects nand gates together
 	nandSetup(nandVector, inputs, outputs, inputPins, outputPins, j);
 
 	//Binary Counter Thing
-	for(int i = 0; i < pow(2, usedInputs.size()); i++)
+	for(unsigned int i = 0; i < pow(2, usedInputs.size()); i++)
 	{
 		cout << "  ";
-		for(int iter1 = 0; iter1 < usedInputs.size(); iter1++)
+		for(unsigned int iter1 = 0; iter1 < usedInputs.size(); iter1++)
 		{
 			cout << iter1 << " ";
 		}	
 		cout << "  ";
-		for(int iter1 = 0; iter1 < usedOutputs.size(); iter1++)
+		for(unsigned int iter1 = 0; iter1 < usedOutputs.size(); iter1++)
 		{
-			cout << iter1 << " ";
+			cout << (iter1 + m * n * 2) << " ";
 		}
 		cout << endl;
 
-		int dashes = usedInputs.size() + usedOutputs.size() + 1;
+		int dashes = usedInputs.size() + usedOutputs.size() + 4;
 		dashes *= 2;
-		cout << "  ";
 		for(int iter1 = 0; iter1 < dashes; iter1++)
 		{
 			cout << "-";
@@ -120,37 +121,40 @@ int main( int argc, char * argv[])
 			cout << inputPins[iter1] << " ";
 		}
 
-		cout << "| ";		
+		cout << "|  ";		
 
-		for(int iter1 = 0; iter1 < nandVector.size(); iter1++)
+		for(unsigned int iter1 = 0; iter1 < nandVector.size(); iter1++)
 		{
 			nandVector[iter1].output = !(*nandVector[iter1].input1 & *nandVector[iter1].input2);
 		}		
 
 		//Output Pins
-		for(int iter1 = 0; iter1 < outputPins.size(); iter1++)
+		for(unsigned int iter1 = 0; iter1 < outputPins.size(); iter1++)
 		{
-			cout << *outputPins[iter1] << " ";
+			cout << *outputPins[iter1] << "  ";
 		}
 		cout << "|" << endl; 
-		cout << "  ";	
+
 		for(int iter1 = 0; iter1 < dashes; iter1++)
 		{
 			cout << "-";
 		}
 		cout << endl << endl;
 
-		//printArray(nandVector);
-
 		myBitset = bitset<j>(myBitset.to_ulong() + 1);
 	}	
+}
+
+void processAndPrint()
+{
+
 }
 
 void nandSetup(vector<nand>& nandVector, vector<int>& inputs, vector<int>& outputs, vector<int>& inputPins,
 			vector<int*>& outputPins, int j)
 {
-	//Set up nandVector to have pointers to the correct things
-	for(int i = 0; i < inputs.size(); i++)
+	//Set up nandVector to have pointers to the correct nand gates
+	for(unsigned int i = 0; i < inputs.size(); i++)
 	{
 		if(inputs[i] < j)
 		{
@@ -161,7 +165,7 @@ void nandSetup(vector<nand>& nandVector, vector<int>& inputs, vector<int>& outpu
 		}
 		else
 		{
-			if(outputs[i] >= nandVector.size() * 2)
+			if((unsigned)outputs[i] >= nandVector.size() * 2)
 			{				
 				outputPins.push_back(&nandVector[inputs[i] - 8].output);				
 			}
@@ -175,17 +179,4 @@ void nandSetup(vector<nand>& nandVector, vector<int>& inputs, vector<int>& outpu
 			}
 		}		
 	}
-}
-
-void printArray(vector<nand> nandVector)
-{
-	for(int i = 0; i < nandVector.size(); i++)
-	{
-		if(i % 10 == 0 && i != 0)
-		{
-			cout << endl;
-		}
-		cout << nandVector[i].output << " ";
-	}
-	cout << endl;
 }
